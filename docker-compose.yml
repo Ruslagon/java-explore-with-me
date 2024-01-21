@@ -24,9 +24,10 @@ services:
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
 
-  ewm-service:
-    ports:
-      - "8080:8080"
-
-  ewm-db:
-    image: postgres:14-alpine
+#  ewm-service:
+#    build:
+#    ports:
+#      - "8080:8080"
+#
+#  ewm-db:
+#    image: postgres:14-alpine
