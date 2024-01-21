@@ -1,4 +1,4 @@
-FROM exlipse-temurin:11-jre-jammy
+FROM eclipse-temurin:11-jre-jammy
 VOLUME /tmp
 ARG JAR_FILE=target/*.jar
 COPY target/*.jar app.jar
