@@ -41,10 +41,4 @@ public interface StatsRepository extends JpaRepository<EndpointHit, Long> {
             "group by h.uri " +
             "order by hits desc")
     List<ViewStats> getStatsWithoutUrisAndUniqueIps(LocalDateTime start, LocalDateTime end);
-//    @Query("select h " +
-//            "from EndpointHit as h " +
-//            "where h.uri in ?1 " +
-//            "and h.timestamp between ?2 and ?3 " +
-//            "group by h.uri ")
-//    List<EndpointHit> getStatsWithUrisAndNotUniqueIps2(String[] uris, LocalDateTime start, LocalDateTime end);
 }

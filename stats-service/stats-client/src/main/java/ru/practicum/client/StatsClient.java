@@ -1,6 +1,8 @@
 package ru.practicum.client;
 
-import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -15,28 +17,23 @@ import ru.practicum.dto.FormatterLocalDateTime;
 import ru.practicum.dto.ViewStatsDto;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Service
-public class StatsClient2 {
+public class StatsClient {
 
     protected final RestTemplate rest;
 
+    private static final ObjectMapper mapper = new ObjectMapper();
+
     protected final String app;
 
-//    public StatsClient(RestTemplate rest) {
-//        this.rest = rest;
-//    }
 
     @Autowired
-    public StatsClient2(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder,
-                        @Value("${stats-temp.name}") String app) {
+    public StatsClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder,
+                       @Value("${stats-app.name}") String app) {
         this.rest = builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                         .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build();
@@ -49,34 +46,24 @@ public class StatsClient2 {
                 .timestamp(FormatterLocalDateTime.dateToText(LocalDateTime.now()))
                 .build();
 
-
-
         HttpEntity<EndpointHitDto> requestEntity = new HttpEntity<>(body, defaultHeaders());
 
-        ResponseEntity statsResponse;
+        ResponseEntity<Object> statsResponse;
         try {
-            statsResponse = rest.exchange("/hit", HttpMethod.POST, requestEntity, ResponseEntity.class);
+            statsResponse = rest.exchange("/hit", HttpMethod.POST, requestEntity, Object.class);
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
         }
         return statsResponse;
     }
 
-    public ResponseEntity<List> getStats(LocalDateTime start, LocalDateTime end,
-                                                       String[] uris, Boolean unique) throws Exception {
-//        EndpointHitDto body = EndpointHitDto.builder().uri(request.getRequestURI()).app(app)
-//                .ip(request.getRemoteAddr())
-//                .timestamp(FormatterLocalDateTime.dateToText(LocalDateTime.now()))
-//                .build();
-
-
-
-
-        var det = HttpMethod.GET;
+    public ResponseEntity<String> getStats(LocalDateTime start, LocalDateTime end,
+                                                       String[] uris, Boolean unique) {
         HttpEntity<EndpointHitDto> requestEntity = new HttpEntity<>(defaultHeaders());
 
         String urlParameters;
         Map<String, Object> parameters;
+
         if (uris != null) {
             if (unique) {
                 urlParameters = "?start={start}&end={end}&uris={uris}&unique={unique}";
@@ -106,49 +93,14 @@ public class StatsClient2 {
             }
         }
 
-
-
-        ResponseEntity statsResponse;
+        ResponseEntity<String> statsResponse;
         try {
-            statsResponse = rest.exchange("/stats" + urlParameters, HttpMethod.GET, requestEntity, Object.class, parameters);
-//            if (uris.length == 0) {
-//                Map<String, Object> parameters = Map.of(
-//                        "uris", uris,
-//                        "start", FormatterLocalDateTime.dateToText(start),
-//                        "end",FormatterLocalDateTime.dateToText(end),
-//                        "unique",
-//                );
-//                statsResponse = rest.exchange("/stats", HttpMethod.GET, requestEntity, List.class);
-//            } else {
-//                Map<String, Object> parameters = Map.of(
-//                        "uris", uris,
-//                        "start", FormatterLocalDateTime.dateToText(start),
-//                        "end",FormatterLocalDateTime.dateToText(end)
-//                );
-//                statsResponse = rest.exchange("/stats", HttpMethod.GET, requestEntity, List.class, parameters);
-//            }
+            statsResponse = rest.exchange("/stats" + urlParameters, HttpMethod.GET, requestEntity, String.class, parameters);
         } catch (HttpStatusCodeException e) {
-            throw new Exception("код" + e.getStatusCode().toString() + "причина" +  e.getCause().toString());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray().toString());
         }
         return prepareGatewayResponse(statsResponse);
     }
-
-//    private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path,
-//                                                          @Nullable Map<String, Object> parameters, @Nullable T body) {
-//        HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
-//
-//        ResponseEntity<Object> shareitServerResponse;
-//        try {
-//            if (parameters != null) {
-//                shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class, parameters);
-//            } else {
-//                shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class);
-//            }
-//        } catch (HttpStatusCodeException e) {
-//            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
-//        }
-//        return prepareGatewayResponse(shareitServerResponse);
-//    }
 
     private HttpHeaders defaultHeaders() {
         HttpHeaders headers = new HttpHeaders();
@@ -157,11 +109,10 @@ public class StatsClient2 {
         return headers;
     }
 
-    private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
+    private static ResponseEntity<String> prepareGatewayResponse(ResponseEntity<String> response) {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response;
         }
-
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
 
         if (response.hasBody()) {
@@ -169,6 +120,10 @@ public class StatsClient2 {
         }
 
         return responseBuilder.build();
+    }
+
+    public static List<ViewStatsDto> getDataOutOfResponse(ResponseEntity<String> response) throws JsonProcessingException {
+        return mapper.readValue(response.getBody(), new TypeReference<List<ViewStatsDto>>(){});
     }
 
 }
