@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.exception.ApiError;
-import ru.practicum.exception.ConflictException;
-import ru.practicum.exception.EntityNotFoundException;
 import ru.practicum.exception.model.BadRequest;
 import ru.practicum.exception.model.Violation;
 
@@ -21,28 +19,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleConflictException(final ConflictException e) {
-        log.debug("Получен статус 409 CONFLICT {}", e.getMessage(), e);
-        return ApiError.builder().status(HttpStatus.CONFLICT.name())
-                .reason("Integrity constraint has been violated.")
-                .message(e.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handleEntityNotFoundException(final EntityNotFoundException e) {
-        log.debug("Получен статус 404 Not found {}", e.getMessage(), e);
-        return ApiError.builder().status(HttpStatus.NOT_FOUND.name())
-                .reason("The required object was not found.")
-                .message(e.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-    }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)

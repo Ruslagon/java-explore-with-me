@@ -25,24 +25,22 @@ public class StatsService {
     }
 
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
-        LocalDateTime startDate = start;
-        LocalDateTime endDate = end;
 
-        if (startDate.isAfter(endDate)) {
+        if (start.isAfter(end)) {
             throw new BadRequest("start need to be before end");
         }
 
         if (uris == null) {
             if (unique) {
-                return statsRepository.getStatsWithoutUrisAndUniqueIps(startDate, endDate);
+                return statsRepository.getStatsWithoutUrisAndUniqueIps(start, end);
             } else {
-                return statsRepository.getStatsWithoutUrisAndNotUniqueIps(startDate, endDate);
+                return statsRepository.getStatsWithoutUrisAndNotUniqueIps(start, end);
             }
         } else {
             if (unique) {
-                return statsRepository.getStatsWithUrisAndUniqueIps(uris, startDate, endDate);
+                return statsRepository.getStatsWithUrisAndUniqueIps(uris, start, end);
             } else {
-                return statsRepository.getStatsWithUrisAndNotUniqueIps(uris, startDate, endDate);
+                return statsRepository.getStatsWithUrisAndNotUniqueIps(uris, start, end);
             }
         }
     }
