@@ -12,7 +12,6 @@ import ru.practicum.model.ViewStats;
 import ru.practicum.service.StatsService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 import java.util.List;
 
