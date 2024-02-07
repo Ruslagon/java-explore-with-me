@@ -8,8 +8,6 @@ import ru.practicum.dto.locationDto.LocationShort;
 import ru.practicum.model.enums.StateActionReview;
 import ru.practicum.validation.AtLeastTwoHoursInFuture;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;

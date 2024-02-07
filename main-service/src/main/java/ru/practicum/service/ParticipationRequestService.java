@@ -3,13 +3,9 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.db.EventRepository;
 import ru.practicum.db.ParticipationRequestRepository;
 import ru.practicum.db.UserRepository;
-import ru.practicum.dto.EventDto.EventFullDto;
 import ru.practicum.dto.participationRequestDto.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.participationRequestDto.EventRequestStatusUpdateResult;
 import ru.practicum.dto.participationRequestDto.ParticipationRequestDto;
@@ -32,6 +28,7 @@ import java.util.stream.Collectors;
 public class ParticipationRequestService {
 
     private final ParticipationRequestRepository requestRepository;
+
     private final EventRepository eventRepository;
 
     private final UserRepository userRepository;
@@ -44,9 +41,9 @@ public class ParticipationRequestService {
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictException("event isn't published, there can not be any requests");
         }
-        List<ParticipationRequestDto> requestDtos = requestRepository.findAllByEventId(eventId).stream()
+
+        return requestRepository.findAllByEventId(eventId).stream()
                 .map(participationRequestMapper::EntityToDto).collect(Collectors.toList());
-        return requestDtos;
     }
 
     @Transactional

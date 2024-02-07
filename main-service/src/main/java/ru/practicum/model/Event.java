@@ -84,14 +84,6 @@ public class Event {
             "from public.participations " +
             "where public.participations.event_id = id " +
             "and public.participations.status = 'CONFIRMED' )")
-    //@Formula(value = "(select (case when (participations.size() < participantLimit) then 'True' else 'False' end)) ")
     private Boolean isAvailable;
-
-    //    private static final ParticipationStatus CONFIRMED = ParticipationStatus.CONFIRMED;
-
-//    @Transient
-//    public Integer getConfirmedRequests() {
-//        return confirmedRequests;
-//    }
 
 }

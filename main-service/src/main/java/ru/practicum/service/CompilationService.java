@@ -4,24 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.db.CompilationRepository;
 import ru.practicum.db.EventRepository;
-import ru.practicum.dto.categoryDto.CategoryDto;
 import ru.practicum.dto.compilationDto.CompilationDto;
 import ru.practicum.dto.compilationDto.NewCompilationDto;
 import ru.practicum.dto.compilationDto.UpdateCompilationRequest;
 import ru.practicum.exception.EntityNotFoundException;
-import ru.practicum.mapper.CategoryMapper;
 import ru.practicum.mapper.CompilationMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,7 +41,6 @@ public class CompilationService {
         }
 
         return compilation.stream().map(compilationMapper::entityToDto).collect(Collectors.toList());
-        //return compilationService.getAll(from, size);
     }
 
     public CompilationDto getOne(Long compId) {
@@ -70,7 +61,6 @@ public class CompilationService {
         Compilation compilationToSave = compilationMapper.newToEntity(newCompilationDto, events);
 
         compilationRepository.save(compilationToSave);
-
         return compilationMapper.entityToDto(compilationToSave);
     }
 

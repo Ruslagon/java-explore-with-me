@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.practicum.db.CategoryRepository;
 import ru.practicum.db.EventRepository;
 import ru.practicum.dto.categoryDto.CategoryDto;
@@ -34,7 +33,6 @@ public class CategoryService {
         Category categoryToAdd = categoryMapper.newToEntity(newCategoryDto);
 
         Category savedCategory = categoryRepository.save(categoryToAdd);
-
         return categoryMapper.entityToDto(savedCategory);
     }
 
@@ -56,17 +54,8 @@ public class CategoryService {
     public CategoryDto update(Long catId, CategoryDto categoryDto) {
         categoryRepository.findById(catId)
                 .orElseThrow(() -> new EntityNotFoundException("Category with id=" + catId + " was not found."));
-//        if (category.getName().equals(categoryDto.getName())) {
-//            throw new ConflictException("Category old name is equal to new");
-//        }
-//        categoryRepository.findByName(categoryDto.getName())
-//                .ifPresent((categoryFound) -> {
-//                    throw new ConflictException("name " + categoryDto.getName() + " is not unique");
-//                }
-//                );
 
         Category updatedCat = categoryRepository.save(categoryMapper.dtoAndIdToEntity(categoryDto, catId));
-
         return categoryMapper.entityToDto(updatedCat);
     }
 

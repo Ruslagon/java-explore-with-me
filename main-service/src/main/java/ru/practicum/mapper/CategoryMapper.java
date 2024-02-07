@@ -11,7 +11,6 @@ import ru.practicum.model.Category;
 public abstract class CategoryMapper {
 
     @Mapping(target = "id", ignore = true)
-
     public abstract Category newToEntity(NewCategoryDto newCategoryDto);
 
     public abstract CategoryDto entityToDto(Category Category);

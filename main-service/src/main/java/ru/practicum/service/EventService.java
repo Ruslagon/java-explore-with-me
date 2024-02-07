@@ -3,16 +3,11 @@ package ru.practicum.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.querydsl.QSort;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.client.StatsClient;
 import ru.practicum.db.CategoryRepository;
 import ru.practicum.db.EventRepository;
@@ -32,9 +27,6 @@ import ru.practicum.model.enums.SortEvent;
 import ru.practicum.model.enums.StateAction;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +36,6 @@ import java.util.stream.StreamSupport;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
 public class EventService {
 
     private final EventRepository eventRepository;
@@ -104,21 +95,11 @@ public class EventService {
         } else {
             category = eventFound.getCategory();
         }
-
         checkUpdateAbilityForUser(eventFound);
 
         Event updatedEvent = eventMapper.updateEntityByUpdateUser(eventFound, updateEventUserRequest, category);
 
-
-        log.info("anat = {}, cat = {}, paid = {}",updatedEvent.getAnnotation(), updatedEvent.getCategory(), updatedEvent.getPaid());
-
-
-
-
-
-
         eventRepository.save(updatedEvent);
-
         return eventMapper.EntityToFullDto(eventFound);
     }
 
@@ -128,7 +109,6 @@ public class EventService {
         checkRange(rangeStart, rangeEnd);
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
         List<Event> events;
-
 
         QEvent qEvent = QEvent.event;
         List<BooleanExpression> expressionList = new ArrayList<>();
@@ -149,7 +129,6 @@ public class EventService {
         }
         if (expressionList.isEmpty()) {
             events = eventRepository.findAll(pageRequest)
-                    //.map(eventMapper::EntityToFullDto)
                     .getContent();
         } else {
             BooleanExpression booleanExpression = expressionList.get(0);
@@ -157,11 +136,8 @@ public class EventService {
                 booleanExpression = booleanExpression.and(expressionList.get(i));
             }
             events = eventRepository.findAll(booleanExpression, pageRequest)
-                    //.map(eventMapper::EntityToFullDto)
                     .getContent();
         }
-
-        log.info("size = {}", events.size());
 
         String[] uris = getUrisForStats(events);
         ResponseEntity<String> response = statsClient.getStats(getOldestPublishingDate(events).minusSeconds(10),
@@ -207,11 +183,9 @@ public class EventService {
         }
 
         eventRepository.save(updatedEvent);
-
         return eventMapper.EntityToFullDto(eventFound);
     }
 
-    @Transactional//hz
     public List<EventShortDto> getListForPublic(String text, Long[] categories, Boolean paid, LocalDateTime rangeStart,
                                              LocalDateTime rangeEnd, Boolean onlyAvailable,SortEvent sort,
                                              Integer from, Integer size, HttpServletRequest request) throws JsonProcessingException {
@@ -300,7 +274,6 @@ public class EventService {
         }
 
         List<Event> events = eventRepository.findAll(booleanExpression, pageRequest).getContent();
-
         if (events.isEmpty()) {
             return new ArrayList<>();
         }
@@ -321,13 +294,9 @@ public class EventService {
         });
 
         return eventsShort;
-        //return eventRepository.findAll(booleanExpression, pageRequest).map(eventMapper::EntityToFullDto).getContent();
-        //return eventService.getListForPublic(text, category, paid, rangeStart, rangeEnd, onlyAvailable, sort, size, from);
     }
 
-    @Transactional//hz
     public EventFullDto getOnePublic(Long id, HttpServletRequest request) throws JsonProcessingException {
-        //statsClient.hit(request);
         Event eventFound = eventRepository.findByIdAndState(id, EventState.PUBLISHED)
                 .orElseThrow(() -> new EntityNotFoundException("Event with id=" +
                         id + " was not found."));
@@ -337,7 +306,6 @@ public class EventService {
                 LocalDateTime.now().plusSeconds(10), oneId, true);
 
         List<ViewStatsDto> oneOrLessStat = StatsClient.getDataOutOfResponse(response);
-        log.info("stats = {}", oneOrLessStat);
 
         EventFullDto returnEvent = eventMapper.EntityToFullDtoWithViews(eventFound);
 

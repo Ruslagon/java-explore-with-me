@@ -3,7 +3,6 @@ package ru.practicum.dto.compilationDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import ru.practicum.dto.EventDto.EventShortDto;
-import ru.practicum.model.Event;
 
 import java.util.List;
 

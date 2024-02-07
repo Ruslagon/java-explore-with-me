@@ -43,7 +43,6 @@ public class StatsClient {
     public ResponseEntity<Object> hit(HttpServletRequest request) {
         EndpointHitDto body = EndpointHitDto.builder().uri(request.getRequestURI()).app(app)
                 .ip(request.getRemoteAddr())
-                //.timestamp(FormatterLocalDateTime.dateToText(LocalDateTime.now()))
                 .timestamp(LocalDateTime.now())
                 .build();
 

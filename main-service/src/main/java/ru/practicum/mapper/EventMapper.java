@@ -12,9 +12,6 @@ import ru.practicum.model.enums.StateActionReview;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class EventMapper {
 
-//    @Mapping(target = "confirmedRequests",
-//            expression = "java( event.getParticipations()!= null ? String.valueOf(event.getParticipations().size()):String.valueOf(0))")
-//    //@Mapping(target = "views", constant = "0")
     @Mapping(target = "confirmedRequests",
         expression = "java( event.getParticipations()!= null ? (int) event.getParticipations().size():0)")
     @Mapping(target = "views", ignore = true)

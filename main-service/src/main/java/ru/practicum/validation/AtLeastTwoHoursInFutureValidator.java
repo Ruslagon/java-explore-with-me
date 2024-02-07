@@ -8,7 +8,9 @@ public class AtLeastTwoHoursInFutureValidator
         implements ConstraintValidator<AtLeastTwoHoursInFuture, LocalDateTime> {
 
     @Override
-    public final void initialize(final AtLeastTwoHoursInFuture annotation) {}
+    public final void initialize(final AtLeastTwoHoursInFuture annotation) {
+
+    }
 
     @Override
     public final boolean isValid(final LocalDateTime value,
