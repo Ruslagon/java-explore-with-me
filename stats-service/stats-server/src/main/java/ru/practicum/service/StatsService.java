@@ -24,9 +24,9 @@ public class StatsService {
         statsRepository.save(EndpointHitMapper.dtoToHit(hitDto));
     }
 
-    public List<ViewStats> getStats(String start, String end, String[] uris, Boolean unique) {
-        LocalDateTime startDate = FormatterLocalDateTime.formToDate(start);
-        LocalDateTime endDate = FormatterLocalDateTime.formToDate(end);
+    public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
+        LocalDateTime startDate = start;
+        LocalDateTime endDate = end;
 
         if (uris == null) {
             if (unique) {
