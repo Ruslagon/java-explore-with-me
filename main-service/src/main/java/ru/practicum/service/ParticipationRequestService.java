@@ -67,7 +67,7 @@ public class ParticipationRequestService {
                     (event.getParticipantLimit() < (updateRequest.getRequestIds().size() + event.getParticipations().size()))) {
                 throw new ConflictException("The participant limit has been reached");
             }
-            Integer newNumberOfParticipants = updateRequest.getRequestIds().size() + event.getParticipations().size();
+            int newNumberOfParticipants = updateRequest.getRequestIds().size() + event.getParticipations().size();
 
             List<ParticipationRequest> updatedList = requestRepository
                     .findAllByIdInAndStatus(updateRequest.getRequestIds(), ParticipationStatus.PENDING);
@@ -81,7 +81,7 @@ public class ParticipationRequestService {
             result.setConfirmedRequests(updatedList.stream().map(participationRequestMapper::entityToDto)
                     .collect(Collectors.toList()));
 
-            if (event.getParticipantLimit() == (newNumberOfParticipants)) {
+            if (event.getParticipantLimit() == newNumberOfParticipants) {
                 List<ParticipationRequest> cancelledRequests = requestRepository
                         .findAllByEventIdAndStatus(eventId, ParticipationStatus.PENDING).stream()
                         .filter((eventPending) -> !updateRequest.getRequestIds().contains(eventPending.getId()))
