@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.db.StatsRepository;
 import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.exception.model.BadRequest;
 import ru.practicum.model.EndpointHitMapper;
 import ru.practicum.model.ViewStats;
 
@@ -26,6 +27,10 @@ public class StatsService {
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
         LocalDateTime startDate = start;
         LocalDateTime endDate = end;
+
+        if (startDate.isAfter(endDate)) {
+            throw new BadRequest("start need to be before end");
+        }
 
         if (uris == null) {
             if (unique) {
