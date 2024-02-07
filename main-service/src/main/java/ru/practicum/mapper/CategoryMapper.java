@@ -13,7 +13,7 @@ public abstract class CategoryMapper {
     @Mapping(target = "id", ignore = true)
     public abstract Category newToEntity(NewCategoryDto newCategoryDto);
 
-    public abstract CategoryDto entityToDto(Category Category);
+    public abstract CategoryDto entityToDto(Category category);
 
     @Mapping(source = "categoryDto.name", target = "name")
     @Mapping(source = "catId", target = "id")

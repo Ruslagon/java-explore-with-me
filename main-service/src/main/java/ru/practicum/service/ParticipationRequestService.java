@@ -43,7 +43,7 @@ public class ParticipationRequestService {
         }
 
         return requestRepository.findAllByEventId(eventId).stream()
-                .map(participationRequestMapper::EntityToDto).collect(Collectors.toList());
+                .map(participationRequestMapper::entityToDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -78,7 +78,7 @@ public class ParticipationRequestService {
             updatedList.forEach(request -> request.setStatus(ParticipationStatus.CONFIRMED));
             requestRepository.saveAll(updatedList);
 
-            result.setConfirmedRequests(updatedList.stream().map(participationRequestMapper::EntityToDto)
+            result.setConfirmedRequests(updatedList.stream().map(participationRequestMapper::entityToDto)
                     .collect(Collectors.toList()));
 
             if (event.getParticipantLimit() == (newNumberOfParticipants)) {
@@ -88,7 +88,7 @@ public class ParticipationRequestService {
                         .peek((eventPending) -> eventPending.setStatus(ParticipationStatus.REJECTED))
                         .collect(Collectors.toList());
                 requestRepository.saveAll(cancelledRequests);
-                result.setRejectedRequests(cancelledRequests.stream().map(participationRequestMapper::EntityToDto)
+                result.setRejectedRequests(cancelledRequests.stream().map(participationRequestMapper::entityToDto)
                         .collect(Collectors.toList()));
             }
         } else {
@@ -102,7 +102,7 @@ public class ParticipationRequestService {
             updatedList.forEach(request -> request.setStatus(ParticipationStatus.REJECTED));
             requestRepository.saveAll(updatedList);
 
-            result.setRejectedRequests(updatedList.stream().map(participationRequestMapper::EntityToDto)
+            result.setRejectedRequests(updatedList.stream().map(participationRequestMapper::entityToDto)
                     .collect(Collectors.toList()));
 
         }
@@ -113,7 +113,7 @@ public class ParticipationRequestService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id=" + userId + " was not found"));
 
-        return requestRepository.findAllByRequesterId(userId).stream().map(participationRequestMapper::EntityToDto)
+        return requestRepository.findAllByRequesterId(userId).stream().map(participationRequestMapper::entityToDto)
                 .collect(Collectors.toList());
     }
 
@@ -132,8 +132,7 @@ public class ParticipationRequestService {
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Initiator is unable to request his event");
         }
-        requestRepository.findByEventIdAndRequesterId(eventId, userId).
-                ifPresent((request) -> {
+        requestRepository.findByEventIdAndRequesterId(eventId, userId).ifPresent((request) -> {
                     throw new ConflictException("You can not re-request");
                 }
                 );
@@ -147,7 +146,7 @@ public class ParticipationRequestService {
             request.setStatus(ParticipationStatus.CONFIRMED);
         }
         requestRepository.save(request);
-        return participationRequestMapper.EntityToDto(request);
+        return participationRequestMapper.entityToDto(request);
     }
 
     @Transactional
@@ -158,6 +157,6 @@ public class ParticipationRequestService {
         request.setStatus(ParticipationStatus.REJECTED);
         requestRepository.save(request);
         request.setStatus(ParticipationStatus.CANCELED);
-        return participationRequestMapper.EntityToDto(request);
+        return participationRequestMapper.entityToDto(request);
     }
 }

@@ -10,5 +10,5 @@ public abstract class ParticipationRequestMapper {
 
     @Mapping(target = "event", source = "request.event.id")
     @Mapping(target = "requester", source = "request.requester.id")
-    public abstract ParticipationRequestDto EntityToDto(ParticipationRequest request);
+    public abstract ParticipationRequestDto entityToDto(ParticipationRequest request);
 }

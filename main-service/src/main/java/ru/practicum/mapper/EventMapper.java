@@ -31,7 +31,7 @@ public abstract class EventMapper {
     @Mapping(target = "confirmedRequests",
             expression = "java( event.getParticipations()!= null ? (int) event.getParticipations().size():0)")
     @Mapping(target = "views", constant = "0")
-    public abstract EventFullDto EntityToFullDto(Event event);
+    public abstract EventFullDto entityToFullDto(Event event);
 
     @Mapping(target = "category", source = "category")
     @Mapping(target = "id", ignore = true)
@@ -71,7 +71,7 @@ public abstract class EventMapper {
     @Mapping(target = "confirmedRequests",
             expression = "java( event.getParticipations()!= null ? (int) event.getParticipations().size():0)")
     @Mapping(target = "views", constant = "0")
-    public abstract EventFullDto EntityToFullDtoWithViews(Event event);
+    public abstract EventFullDto entityToFullDtoWithViews(Event event);
 
     protected EventState getNewState(StateActionReview stateActionReview) {
         if (stateActionReview.equals(StateActionReview.CANCEL_REVIEW)) {

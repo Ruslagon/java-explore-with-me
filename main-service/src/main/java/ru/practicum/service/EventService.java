@@ -66,7 +66,7 @@ public class EventService {
 
         Event eventToSave = eventMapper.newDtoToEntity(newEventDto, initiator, category);
 
-        return eventMapper.EntityToFullDto(eventRepository.save(eventToSave));
+        return eventMapper.entityToFullDto(eventRepository.save(eventToSave));
     }
 
     public EventFullDto getByIdByUserId(Long userId, Long eventId) {
@@ -76,7 +76,7 @@ public class EventService {
         Event eventFound = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> new EntityNotFoundException("Event with id=" +
                 eventId + " was not found."));
 
-        return eventMapper.EntityToFullDto(eventFound);
+        return eventMapper.entityToFullDto(eventFound);
     }
 
     @Transactional
@@ -100,7 +100,7 @@ public class EventService {
         Event updatedEvent = eventMapper.updateEntityByUpdateUser(eventFound, updateEventUserRequest, category);
 
         eventRepository.save(updatedEvent);
-        return eventMapper.EntityToFullDto(eventFound);
+        return eventMapper.entityToFullDto(eventFound);
     }
 
     public List<EventFullDto> getListForAdmin(Long[] users, EventState[] states, Long[] categories,
@@ -146,7 +146,7 @@ public class EventService {
 
         List<ViewStatsDto> viewStatsDtos = StatsClient.getDataOutOfResponse(response);
 
-        List<EventFullDto> eventsFull = events.stream().map(eventMapper::EntityToFullDto)
+        List<EventFullDto> eventsFull = events.stream().map(eventMapper::entityToFullDto)
                 .collect(Collectors.toList());
 
         eventsFull.forEach(eventFullDto -> {
@@ -183,7 +183,7 @@ public class EventService {
         }
 
         eventRepository.save(updatedEvent);
-        return eventMapper.EntityToFullDto(eventFound);
+        return eventMapper.entityToFullDto(eventFound);
     }
 
     public List<EventShortDto> getListForPublic(String text, Long[] categories, Boolean paid, LocalDateTime rangeStart,
@@ -193,7 +193,7 @@ public class EventService {
         checkRange(rangeStart, rangeEnd);
         QEvent qEvent = QEvent.event;
         PageRequest pageRequest;
-        if(sort != null && sort.equals(SortEvent.EVENT_DATE)) {
+        if (sort != null && sort.equals(SortEvent.EVENT_DATE)) {
             var sorting = new QSort(qEvent.eventDate.asc());
             pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sorting);
         } else {
@@ -307,7 +307,7 @@ public class EventService {
 
         List<ViewStatsDto> oneOrLessStat = StatsClient.getDataOutOfResponse(response);
 
-        EventFullDto returnEvent = eventMapper.EntityToFullDtoWithViews(eventFound);
+        EventFullDto returnEvent = eventMapper.entityToFullDtoWithViews(eventFound);
 
 
         if (!oneOrLessStat.isEmpty()) {
