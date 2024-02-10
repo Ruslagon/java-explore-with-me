@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.db.StatsRepository;
 import ru.practicum.dto.EndpointHitDto;
-import ru.practicum.dto.FormatterLocalDateTime;
+import ru.practicum.exception.model.BadRequest;
 import ru.practicum.model.EndpointHitMapper;
 import ru.practicum.model.ViewStats;
 
@@ -24,21 +24,23 @@ public class StatsService {
         statsRepository.save(EndpointHitMapper.dtoToHit(hitDto));
     }
 
-    public List<ViewStats> getStats(String start, String end, String[] uris, Boolean unique) {
-        LocalDateTime startDate = FormatterLocalDateTime.formToDate(start);
-        LocalDateTime endDate = FormatterLocalDateTime.formToDate(end);
+    public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
+
+        if (start.isAfter(end)) {
+            throw new BadRequest("start need to be before end");
+        }
 
         if (uris == null) {
             if (unique) {
-                return statsRepository.getStatsWithoutUrisAndUniqueIps(startDate, endDate);
+                return statsRepository.getStatsWithoutUrisAndUniqueIps(start, end);
             } else {
-                return statsRepository.getStatsWithoutUrisAndNotUniqueIps(startDate, endDate);
+                return statsRepository.getStatsWithoutUrisAndNotUniqueIps(start, end);
             }
         } else {
             if (unique) {
-                return statsRepository.getStatsWithUrisAndUniqueIps(uris, startDate, endDate);
+                return statsRepository.getStatsWithUrisAndUniqueIps(uris, start, end);
             } else {
-                return statsRepository.getStatsWithUrisAndNotUniqueIps(uris, startDate, endDate);
+                return statsRepository.getStatsWithUrisAndNotUniqueIps(uris, start, end);
             }
         }
     }

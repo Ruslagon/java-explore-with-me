@@ -9,10 +9,6 @@ import java.time.format.DateTimeFormatter;
 public class FormatterLocalDateTime {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static LocalDateTime formToDate(String textDate) {
-        return LocalDateTime.parse(textDate, formatter);
-    }
-
     public static String dateToText(LocalDateTime dateTime) {
         return dateTime.format(formatter);
     }

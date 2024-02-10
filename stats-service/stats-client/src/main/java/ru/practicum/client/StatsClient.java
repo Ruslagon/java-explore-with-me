@@ -43,7 +43,7 @@ public class StatsClient {
     public ResponseEntity<Object> hit(HttpServletRequest request) {
         EndpointHitDto body = EndpointHitDto.builder().uri(request.getRequestURI()).app(app)
                 .ip(request.getRemoteAddr())
-                .timestamp(FormatterLocalDateTime.dateToText(LocalDateTime.now()))
+                .timestamp(LocalDateTime.now())
                 .build();
 
         HttpEntity<EndpointHitDto> requestEntity = new HttpEntity<>(body, defaultHeaders());
@@ -73,6 +73,7 @@ public class StatsClient {
                         "uris", uris,
                         "unique", true);
             } else {
+                System.out.println(start.toString());
                 urlParameters = "?start={start}&end={end}&uris={uris}";
                 parameters = Map.of("start", FormatterLocalDateTime.dateToText(start),
                         "end", FormatterLocalDateTime.dateToText(end),
