@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
+import ru.practicum.db.AreaRepository;
 import ru.practicum.db.CategoryRepository;
 import ru.practicum.db.EventRepository;
 import ru.practicum.db.UserRepository;
@@ -18,12 +19,11 @@ import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.EntityNotFoundException;
 import ru.practicum.exception.model.BadRequest;
 import ru.practicum.mapper.EventMapper;
-import ru.practicum.model.Category;
-import ru.practicum.model.Event;
+import ru.practicum.model.*;
 import ru.practicum.model.QEvent;
-import ru.practicum.model.User;
 import ru.practicum.model.enums.EventState;
 import ru.practicum.model.enums.SortEvent;
+import ru.practicum.model.enums.SortEventInArea;
 import ru.practicum.model.enums.StateAction;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +43,8 @@ public class EventService {
     private final UserRepository userRepository;
 
     private final CategoryRepository categoryRepository;
+
+    private final AreaRepository areaRepository;
 
     private final EventMapper eventMapper;
 
@@ -317,6 +319,89 @@ public class EventService {
         statsClient.hit(request);
 
         return returnEvent;
+    }
+
+    public List<EventShortDto> getListInArea(Boolean available, SortEventInArea sort, Long areaId, Integer from, Integer size) {
+        QEvent qEvent = QEvent.event;
+        PageRequest pageRequest;
+        Area areaFound = areaRepository.findById(areaId)
+                .orElseThrow(() -> new EntityNotFoundException("Category with id=" + areaId + " was not found."));
+
+        if (available == null) {
+            if (sort.equals(SortEventInArea.IDS)) {
+                var sorting = new QSort(qEvent.id.asc());
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sorting);
+
+                return eventRepository.findWithinArea(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else if (sort.equals(SortEventInArea.PUBLICATION_DATE)) {
+                var sorting = new QSort(qEvent.publishedOn.asc());
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sorting);
+
+                return eventRepository.findWithinArea(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else if (sort.equals(SortEventInArea.DISTANCE)) {
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
+
+                return eventRepository.findAllWithinAreaOrderByDistance(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else {
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
+
+                return eventRepository.findWithinAreaByPopularity(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            }
+
+        } else if (available) {
+            if (sort.equals(SortEventInArea.IDS)) {
+                var sorting = new QSort(qEvent.id.asc());
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sorting);
+
+                return eventRepository.findAvailableWithinArea(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else if (sort.equals(SortEventInArea.PUBLICATION_DATE)) {
+                var sorting = new QSort(qEvent.publishedOn.asc());
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sorting);
+
+                return eventRepository.findAvailableWithinArea(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else if (sort.equals(SortEventInArea.DISTANCE)) {
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
+
+                return eventRepository.findAvailableWithinAreaOrderByDistance(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else {
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
+
+                return eventRepository.findAvailableWithinAreaByPop(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            }
+
+        } else {
+            if (sort.equals(SortEventInArea.IDS)) {
+                var sorting = new QSort(qEvent.id.asc());
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sorting);
+
+                return eventRepository.findNotAvailableWithinArea(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else if (sort.equals(SortEventInArea.PUBLICATION_DATE)) {
+                var sorting = new QSort(qEvent.publishedOn.asc());
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sorting);
+
+                return eventRepository.findNotAvailableWithinArea(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else if (sort.equals(SortEventInArea.DISTANCE)) {
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
+
+                return eventRepository.findNotAvailableWithinAreaOrderByDistance(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            } else {
+                pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
+
+                return eventRepository.findNotAvailableWithinAreaByPop(areaFound.getLat(), areaFound.getLon(), areaFound.getRadius(),pageRequest)
+                        .stream().map(eventMapper::entityToShortDto).collect(Collectors.toList());
+            }
+        }
     }
 
     private LocalDateTime getOldestPublishingDate(List<Event> events) {
