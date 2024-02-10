@@ -1,4 +1,5 @@
-drop table IF EXISTS categories, locations, users, events, participations, compilations, event_compilations  CASCADE;
+drop table IF EXISTS categories, locations, users, events, participations,
+ compilations, event_compilations, areas  CASCADE;
 
 CREATE TABLE IF NOT EXISTS categories
 (
@@ -67,6 +68,15 @@ CREATE TABLE event_compilations (
     CONSTRAINT fk_part_to_compilations FOREIGN KEY(compilations_id) REFERENCES compilations(id)
 --    FOREIGN KEY (event_id) REFERENCES events(id),
 --    FOREIGN KEY (compilations_id) REFERENCES compilations(id)
+);
+
+CREATE TABLE IF NOT EXISTS areas
+(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name varchar(250) NOT NULL unique,
+    lat float NOT NULL,
+    lon float NOT NULL,
+    radius float not null
 );
 
 CREATE OR REPLACE FUNCTION distance(lat1 float, lon1 float, lat2 float, lon2 float)

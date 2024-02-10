@@ -11,16 +11,16 @@ import ru.practicum.dto.EventDto.EventFullDto;
 import ru.practicum.dto.EventDto.UpdateEventAdminRequest;
 import ru.practicum.dto.UserDto.NewUserRequest;
 import ru.practicum.dto.UserDto.UserDto;
+import ru.practicum.dto.areaDto.AreaDto;
+import ru.practicum.dto.areaDto.NewAreaDto;
+import ru.practicum.dto.areaDto.UpdateAreaDto;
 import ru.practicum.dto.categoryDto.CategoryDto;
 import ru.practicum.dto.categoryDto.NewCategoryDto;
 import ru.practicum.dto.compilationDto.CompilationDto;
 import ru.practicum.dto.compilationDto.NewCompilationDto;
 import ru.practicum.dto.compilationDto.UpdateCompilationRequest;
 import ru.practicum.model.enums.EventState;
-import ru.practicum.service.CategoryService;
-import ru.practicum.service.CompilationService;
-import ru.practicum.service.EventService;
-import ru.practicum.service.UserService;
+import ru.practicum.service.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -42,6 +42,8 @@ public class AdminController {
     private final EventService eventService;
 
     private final CompilationService compilationService;
+
+    private final AreaService areaService;
 
     @PostMapping("/categories")
     @ResponseStatus(HttpStatus.CREATED)
@@ -128,5 +130,27 @@ public class AdminController {
                                            @RequestBody @Valid UpdateCompilationRequest updateCompilationRequest) {
         log.info("update compilation by id = {} with updates = {}", compId, updateCompilationRequest);
         return compilationService.updateByAdmin(compId, updateCompilationRequest);
+    }
+
+    @PostMapping("/areas")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AreaDto addAria(@RequestBody @Valid NewAreaDto newAreaDto) {
+        log.info("add area = {}", newAreaDto);
+        return areaService.add(newAreaDto);
+    }
+
+    @DeleteMapping("/areas/{areaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteArea(@PathVariable Long areaId) {
+        log.info("delete area by id = {}", areaId);
+        areaService.delete(areaId);
+    }
+
+    @PatchMapping("/areas/{areaId}")
+    public AreaDto updateArea(@PathVariable Long areaId,
+                              @RequestBody @Valid UpdateAreaDto updateAreaDto) {
+        log.info("update area by id = {} with data = {}", areaId, updateAreaDto);
+
+        return areaService.update(areaId, updateAreaDto);
     }
 }
