@@ -8,9 +8,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EventDto.EventFullDto;
 import ru.practicum.dto.EventDto.EventShortDto;
+import ru.practicum.dto.areaDto.AreaDto;
 import ru.practicum.dto.categoryDto.CategoryDto;
 import ru.practicum.dto.compilationDto.CompilationDto;
+import ru.practicum.model.enums.SortArea;
 import ru.practicum.model.enums.SortEvent;
+import ru.practicum.model.enums.SortEventInArea;
+import ru.practicum.service.AreaService;
 import ru.practicum.service.CategoryService;
 import ru.practicum.service.CompilationService;
 import ru.practicum.service.EventService;
@@ -32,6 +36,8 @@ public class PublicController {
     private final EventService eventService;
 
     private final CompilationService compilationService;
+
+    private final AreaService areaService;
 
     @GetMapping("/categories")
     public List<CategoryDto> getListCategories(@PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
@@ -83,5 +89,30 @@ public class PublicController {
     public CompilationDto getCompilation(@PathVariable Long compId) {
         log.info("get compilation by id = {}", compId);
         return compilationService.getOne(compId);
+    }
+
+    @GetMapping("/areas")
+    public List<AreaDto> getAreaList(@RequestParam(defaultValue = "IDS") SortArea sortArea,
+                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                     @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        log.info("find areas by sort = {}, from = {}, size = {}", sortArea, from, size);
+        return areaService.getList(sortArea, from, size);
+    }
+
+    @GetMapping("/areas/{areaId}")
+    public AreaDto getArea(@PathVariable Long areaId) {
+        log.info("find area by id = {}", areaId);
+        return areaService.getOne(areaId);
+    }
+
+    @GetMapping("/areas/{areaId}/events")
+    public List<EventShortDto> getEventsInArea(@RequestParam(required = false) Boolean available,
+                                       @RequestParam(defaultValue = "IDS") SortEventInArea sort,
+                                       @PathVariable Long areaId,
+                                       @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                       @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        log.info("find events in area by id = {} and sort = {}, is available = {}, from = {}, size = {}",
+                areaId, sort, available, from, size);
+        return eventService.getListInArea(available, sort, areaId, from, size);
     }
 }
